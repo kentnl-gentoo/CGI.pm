@@ -17,7 +17,6 @@ no_index:
     - inc
     - t
 requires:
-  FCGI: 0.67
   File::Spec: 0.82
   Test::More: 0.98
   if: 0
@@ -27,4 +26,4 @@ resources:
   homepage: https://metacpan.org/module/CGI
   license: http://dev.perl.org/licenses/
   repository: https://github.com/leejo/CGI.pm
-version: 3.65_01
+version: 3.65_02
