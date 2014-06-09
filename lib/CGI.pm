@@ -3,23 +3,7 @@ require 5.008001;
 use if $] >= 5.019, 'deprecate';
 use Carp 'croak';
 
-# See the bottom of this file for the POD documentation.  Search for the
-# string '=head'.
-
-# You can run this file through either pod2man or pod2html to produce pretty
-# documentation in manual or html file format (these utilities are part of the
-# Perl 5 distribution).
-
-# Copyright 1995-1998 Lincoln D. Stein.  All rights reserved.
-# It may be used and modified freely, but I do request that this copyright
-# notice remain attached to the file.  You may modify this module as you 
-# wish, but if you redistribute a modified version, please attach a note
-# listing the modifications you have made.
-
-# The most recent version and complete docs are available at:
-#   http://search.cpan.org/dist/CGI.pm
-
-$CGI::VERSION='4.01';
+$CGI::VERSION='4.02';
 
 # HARD-CODED LOCATION FOR FILE UPLOAD TEMPORARY FILES.
 # UNCOMMENT THIS ONLY IF YOU KNOW WHAT YOU'RE DOING.
@@ -1403,7 +1387,7 @@ END_OF_FUNC
 'multipart_init' => <<'END_OF_FUNC',
 sub multipart_init {
     my($self,@p) = self_or_default(@_);
-    my($boundary,@other) = rearrange_header([BOUNDARY],@p);
+    my($boundary,$charset,@other) = rearrange_header([BOUNDARY,CHARSET],@p);
     if (!$boundary) {
         $boundary = '------- =_';
         my @chrs = ('0'..'9', 'A'..'Z', 'a'..'z');
@@ -1418,6 +1402,7 @@ sub multipart_init {
     return $self->header(
 	-nph => 0,
 	-type => $type,
+    -charset => $charset,
 	(map { split "=", $_, 2 } @other),
     ) . "WARNING: YOUR BROWSER DOESN'T SUPPORT THIS SERVER-PUSH TECHNOLOGY." . $self->multipart_end;
 }
@@ -1434,16 +1419,20 @@ END_OF_FUNC
 sub multipart_start {
     my(@header);
     my($self,@p) = self_or_default(@_);
-    my($type,@other) = rearrange([TYPE],@p);
+    my($type,$charset,@other) = rearrange([TYPE,CHARSET],@p);
     $type = $type || 'text/html';
-    push(@header,"Content-Type: $type");
+    if ($charset) {
+        push(@header,"Content-Type: $type; charset=$charset");
+    } else {
+        push(@header,"Content-Type: $type");
+    }
 
     # rearrange() was designed for the HTML portion, so we
     # need to fix it up a little.
     for (@other) {
         # Don't use \s because of perl bug 21951
         next unless my($header,$value) = /([^ \r\n\t=]+)=\"?(.+?)\"?$/;
-	($_ = $header) =~ s/^(\w)(.*)/$1 . lc ($2) . ': '.$self->unescapeHTML($value)/e;
+        ($_ = $header) =~ s/^(\w)(.*)/$1 . lc ($2) . ': '.$self->unescapeHTML($value)/e;
     }
     push(@header,@other);
     my $header = join($CRLF,@header)."${CRLF}${CRLF}";
@@ -1492,7 +1481,7 @@ sub header {
 
     my($type,$status,$cookie,$target,$expires,$nph,$charset,$attachment,$p3p,@other) = 
 	rearrange([['TYPE','CONTENT_TYPE','CONTENT-TYPE'],
-			    'STATUS',['COOKIE','COOKIES'],'TARGET',
+			    'STATUS',['COOKIE','COOKIES','SET-COOKIE'],'TARGET',
                             'EXPIRES','NPH','CHARSET',
                             'ATTACHMENT','P3P'],@p);
 
@@ -1596,7 +1585,7 @@ END_OF_FUNC
 sub redirect {
     my($self,@p) = self_or_default(@_);
     my($url,$target,$status,$cookie,$nph,@other) = 
-         rearrange([[LOCATION,URI,URL],TARGET,STATUS,['COOKIE','COOKIES'],NPH],@p);
+         rearrange([[LOCATION,URI,URL],TARGET,STATUS,['COOKIE','COOKIES','SET-COOKIE'],NPH],@p);
     $status = '302 Found' unless defined $status;
     $url ||= $self->self_url;
     my(@o);
@@ -7772,18 +7761,21 @@ B<multipart_end()>.
 
 =item multipart_init()
 
-  multipart_init(-boundary=>$boundary);
+  multipart_init(-boundary=>$boundary, -charset=>$charset);
 
 Initialize the multipart system.  The -boundary argument specifies
 what MIME boundary string to use to separate parts of the document.
 If not provided, CGI.pm chooses a reasonable boundary for you.
 
+The -charset provides the character set, if not provided this will
+default to ISO-8859-1
+
 =item multipart_start()
 
-  multipart_start(-type=>$type)
+  multipart_start(-type=>$type, -charset=>$charset)
 
 Start a new part of the multipart document using the specified MIME
-type.  If not specified, text/html is assumed.
+type and charset. If not specified, text/html ISO-8859-1 is assumed.
 
 =item multipart_end()
 
