@@ -3,7 +3,7 @@ require 5.008001;
 use if $] >= 5.019, 'deprecate';
 use Carp 'croak';
 
-$CGI::VERSION='4.02';
+$CGI::VERSION='4.03';
 
 # HARD-CODED LOCATION FOR FILE UPLOAD TEMPORARY FILES.
 # UNCOMMENT THIS ONLY IF YOU KNOW WHAT YOU'RE DOING.
@@ -208,35 +208,44 @@ if ($needs_binmode) {
 }
 
 %EXPORT_TAGS = (
-		':html2'=>['h1'..'h6',qw/p br hr ol ul li dl dt dd menu code var strong em
-			   tt u i b blockquote pre img a address cite samp dfn html head
-			   base body Link nextid title meta kbd start_html end_html
-			   input Select option comment charset escapeHTML/],
-		':html3'=>[qw/div table caption th td TR Tr sup Sub strike applet Param nobr
-			   embed basefont style span layer ilayer font frameset frame script small big Area Map/],
-                ':html4'=>[qw/abbr acronym bdo col colgroup del fieldset iframe
-                            ins label legend noframes noscript object optgroup Q 
-                            thead tbody tfoot/], 
-		':netscape'=>[qw/blink fontsize center/],
-		':form'=>[qw/textfield textarea filefield password_field hidden checkbox checkbox_group 
-			  submit reset defaults radio_group popup_menu button autoEscape
-			  scrolling_list image_button start_form end_form startform endform
-			  start_multipart_form end_multipart_form isindex tmpFileName uploadInfo URL_ENCODED MULTIPART/],
-		':cgi'=>[qw/param upload path_info path_translated request_uri url self_url script_name 
-			 cookie Dump
-			 raw_cookie request_method query_string Accept user_agent remote_host content_type
-			 remote_addr referer server_name server_software server_port server_protocol virtual_port
-			 virtual_host remote_ident auth_type http append
-			 save_parameters restore_parameters param_fetch
-			 remote_user user_name header redirect import_names put 
-			 Delete Delete_all url_param cgi_error/],
-		':ssl' => [qw/https/],
-		':cgi-lib' => [qw/ReadParse PrintHeader HtmlTop HtmlBot SplitParam Vars/],
-		':html' => [qw/:html2 :html3 :html4 :netscape/],
-		':standard' => [qw/:html2 :html3 :html4 :form :cgi/],
-		':push' => [qw/multipart_init multipart_start multipart_end multipart_final/],
-		':all' => [qw/:html2 :html3 :netscape :form :cgi :internal :html4/]
-		);
+	':html2' => [ 'h1' .. 'h6', qw/
+		p br hr ol ul li dl dt dd menu code var strong em
+		tt u i b blockquote pre img a address cite samp dfn html head
+		base body Link nextid title meta kbd start_html end_html
+		input Select option comment charset escapeHTML
+	/ ],
+	':html3' => [ qw/
+		div table caption th td TR Tr sup Sub strike applet Param nobr
+		embed basefont style span layer ilayer font frameset frame script small big Area Map
+	/ ],
+	':html4' => [ qw/
+		abbr acronym bdo col colgroup del fieldset iframe
+		ins label legend noframes noscript object optgroup Q
+		thead tbody tfoot
+	/ ],
+	':form'     => [ qw/
+		textfield textarea filefield password_field hidden checkbox checkbox_group
+		submit reset defaults radio_group popup_menu button autoEscape
+		scrolling_list image_button start_form end_form startform endform
+		start_multipart_form end_multipart_form isindex tmpFileName uploadInfo URL_ENCODED MULTIPART
+	/ ],
+	':cgi' => [ qw/
+		param upload path_info path_translated request_uri url self_url script_name
+		cookie Dump raw_cookie request_method query_string Accept user_agent remote_host content_type
+		remote_addr referer server_name server_software server_port server_protocol virtual_port
+		virtual_host remote_ident auth_type http append save_parameters restore_parameters param_fetch
+		remote_user user_name header redirect import_names put Delete Delete_all url_param cgi_error
+	/ ],
+	':netscape' => [qw/blink fontsize center/],
+	':ssl'      => [qw/https/],
+	':cgi-lib'  => [qw/ReadParse PrintHeader HtmlTop HtmlBot SplitParam Vars/],
+	':push'     => [qw/multipart_init multipart_start multipart_end multipart_final/],
+
+	# bulk export/import
+	':html'     => [qw/:html2 :html3 :html4 :netscape/],
+	':standard' => [qw/:html2 :html3 :html4 :form :cgi :ssl/],
+	':all'      => [qw/:html2 :html3 :html4 :netscape :form :cgi :ssl :push/]
+);
 
 # Custom 'can' method for both autoloaded and non-autoloaded subroutines.
 # Author: Cees Hek <cees@sitesuite.com.au>
@@ -580,12 +589,7 @@ sub init {
                       $self->add_parameter($param);
                       my($value) = $self->read_multipart_related($start,$boundary,$content_length,0);
                       push (@{$self->{param}{$param}},$value);
-                      if ($MOD_PERL) {
-                              $query_string = $self->r->args;
-                      } else {
-                              $query_string = $ENV{'QUERY_STRING'} if defined $ENV{'QUERY_STRING'};
-                              $query_string ||= $ENV{'REDIRECT_QUERY_STRING'} if defined $ENV{'REDIRECT_QUERY_STRING'};
-                      }
+					  $query_string = $self->_get_query_string_from_env;
                       $is_xforms = 1;
               }
       }
@@ -630,13 +634,8 @@ sub init {
       # If method is GET, HEAD or DELETE, fetch the query from
       # the environment.
       if ($is_xforms || $meth=~/^(GET|HEAD|DELETE)$/) {
-	  if ($MOD_PERL) {
-	    $query_string = $self->r->args;
-	  } else {
-	      $query_string = $ENV{'QUERY_STRING'} if defined $ENV{'QUERY_STRING'};
-	      $query_string ||= $ENV{'REDIRECT_QUERY_STRING'} if defined $ENV{'REDIRECT_QUERY_STRING'};
-	  }
-	  last METHOD;
+          $query_string = $self->_get_query_string_from_env;
+	      last METHOD;
       }
 
       if ($meth eq 'POST' || $meth eq 'PUT') {
@@ -706,6 +705,38 @@ sub init {
     $self->delete('.cgifields');
 
     $self->save_request unless defined $initializer;
+}
+
+sub _get_query_string_from_env {
+    my $self = shift;
+    my $query_string = '';
+
+    if ( $MOD_PERL ) {
+        $query_string = $self->r->args;
+        if ( ! $query_string && $MOD_PERL == 2 ) {
+            # possibly a redirect, inspect prev request
+            # (->prev only supported under mod_perl2)
+            if ( my $prev = $self->r->prev ) {
+                $query_string = $prev->args;
+            }
+        }
+    }
+
+    $query_string ||= $ENV{'QUERY_STRING'}
+        if defined $ENV{'QUERY_STRING'};
+
+    if ( ! $query_string ) {
+        # try to get from REDIRECT_ env variables, support
+        # 5 levels of redirect and no more (RT #36312)
+        REDIRECT: foreach my $r ( 1 .. 5 ) {
+            my $key = join( '',( 'REDIRECT_' x $r ) );
+            $query_string ||= $ENV{"${key}QUERY_STRING"}
+                if defined $ENV{"${key}QUERY_STRING"};
+            last REDIRECT if $query_string;
+        }
+    }
+
+    return $query_string;
 }
 
 # FUNCTIONS TO OVERRIDE:
@@ -2536,6 +2567,9 @@ sub popup_menu {
                                 : $default;
     }
     $name=$self->_maybe_escapeHTML($name);
+    # RT #30057 - ignore -multiple, if you need this
+    # then use scrolling_list
+    @other = grep { $_ !~ /^multiple=/i } @other;
     my($other) = @other ? " @other" : '';
 
     my(@values);
@@ -4320,7 +4354,7 @@ become a de-facto standard.
 
 =head1 CGI.pm HAS BEEN REMOVED FROM THE PERL CORE
 
-	http://perl5.git.perl.org/perl.git/commitdiff/e9fa5a80
+  L<http://perl5.git.perl.org/perl.git/commitdiff/e9fa5a80>
 
 If you upgrade to a new version of perl or if you rely on a
 system or vendor perl and get an updated version of perl through a system
@@ -4337,7 +4371,7 @@ in time. These will be documented with L<CGI::Alternatives>.
 
 For more discussion on the removal of CGI.pm from core please see:
 
-http://www.nntp.perl.org/group/perl.perl5.porters/2013/05/msg202130.html
+  L<http://www.nntp.perl.org/group/perl.perl5.porters/2013/05/msg202130.html>
 
 =head2 Programming style
 
@@ -4782,7 +4816,7 @@ The file format used for save/restore is identical to that used by the
 Whitehead Genome Center's data exchange format "Boulderio", and can be
 manipulated and even databased using Boulderio utilities.  See
 
-  http://stein.cshl.org/boulder/
+  L<Boulder>
 
 for further details.
 
@@ -4871,12 +4905,14 @@ Import all HTML-generating shortcuts (i.e. 'html2', 'html3', 'html4' and 'netsca
 
 =item B<:standard>
 
-Import "standard" features, 'html2', 'html3', 'html4', 'form' and 'cgi'.
+Import "standard" features, 'html2', 'html3', 'html4', 'ssl', 'form' and 'cgi'.
 
 =item B<:all>
 
 Import all the available methods.  For the full list, see the CGI.pm
-code, where the variable %EXPORT_TAGS is defined.
+code, where the variable %EXPORT_TAGS is defined. (N.B. the :cgi-lib
+imports will B<not> be included in the :all import, you will have to
+import :cgi-lib to get those)
 
 =back
 
@@ -5566,7 +5602,8 @@ of the form(s).  Something like this will do the trick.
 If you want more control over what's returned, using the B<url()>
 method instead.
 
-You can also retrieve the unprocessed query string with query_string():
+You can also retrieve a query string representation of the current object
+state with query_string():
 
     $the_string = $q->query_string();
 
@@ -6379,7 +6416,9 @@ a small penalty of loading IO::Handle the first time you call it.
           -labels=>\%labels,
           -attributes=>\%attributes);
 
-popup_menu() creates a menu.
+popup_menu() creates a menu. Please note that the -multiple option will be
+ignored if passed - use scrolling_list() if you want to create a menu that
+supports multiple selections
 
 =over 4
 

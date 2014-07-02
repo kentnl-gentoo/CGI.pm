@@ -1,3 +1,28 @@
+4.03 2014-07-02
+
+    [ REMOVED / DEPRECATIONS ]
+    - the -multiple option to popup_menu is now IGNORED as this did not
+      function correctly. If you require a menu with multiple selections
+      use the scrolling_list method. (RT #30057)
+
+    [ SPEC / BUG FIXES ]
+    - support redirects in mod_perl2, or fall back to using env variable
+      for up to 5 redirects, when getting the query string (RT #36312)
+    - CGI::Cookie now correctly supports the -max-age argument, previously
+      if this was passed the value of the -expires argument would be used
+      meaning there was no way to supply *only* this argument (RT #50576)
+    - make :all actually import all methods, except for :cgi-lib, and add
+      :ssl to the :standard import (RT #70337)
+
+    [ DOCUMENTATION ]
+    - clarify documentation regarding query_string method (RT #48370)
+    - links fixed in some perldoc (Thanks to Michiel Beijen)
+
+    [ TESTING ]
+    - add t/changes.t for testing this Changes file
+    - test case for RT #31107 confirming multipart parsing is to spec
+    - improve t/rt-52469.t by adding a timeout check
+
 4.02 2014-06-09
 
     [ NEW FEATURES ]

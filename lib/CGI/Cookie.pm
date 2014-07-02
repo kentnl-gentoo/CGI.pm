@@ -126,7 +126,7 @@ sub new {
   $self->domain( $domain )     if defined $domain;
   $self->secure( $secure )     if defined $secure;
   $self->expires( $expires )   if defined $expires;
-  $self->max_age($expires)     if defined $max_age;
+  $self->max_age( $max_age )   if defined $max_age;
   $self->httponly( $httponly ) if defined $httponly;
   return $self;
 }
@@ -257,17 +257,15 @@ CGI::Cookie - Interface to HTTP Cookies
 
 =head1 DESCRIPTION
 
-CGI::Cookie is an interface to HTTP/1.1 cookies, an
-innovation that allows Web servers to store persistent information on
+CGI::Cookie is an interface to HTTP/1.1 cookies, a mechanism
+that allows Web servers to store persistent information on
 the browser's side of the connection.  Although CGI::Cookie is
 intended to be used in conjunction with CGI.pm (and is in fact used by
 it internally), you can use this module independently.
 
 For full information on cookies see 
 
-	http://tools.ietf.org/html/rfc2109
-	http://tools.ietf.org/html/rfc2965
-	http://tools.ietf.org/html/draft-ietf-httpstate-cookie
+    https://tools.ietf.org/html/rfc6265
 
 =head1 USING CGI::Cookie
 
@@ -327,7 +325,7 @@ This feature is supported by nearly all modern browsers.
 
 See these URLs for more information:
 
-	http://msdn.microsoft.com/en-us/library/ms533046.aspx
+    http://msdn.microsoft.com/en-us/library/ms533046.aspx
     http://www.browserscope.org/?category=security&v=top
 
 =back
@@ -337,6 +335,7 @@ See these URLs for more information:
 	my $c = CGI::Cookie->new(-name    =>  'foo',
                              -value   =>  'bar',
                              -expires =>  '+3M',
+                           '-max-age' =>  '+3M',
                              -domain  =>  '.capricorn.com',
                              -path    =>  '/cgi-bin/database',
                              -secure  =>  1
@@ -502,6 +501,10 @@ Get or set the cookie's path.
 =item B<expires()>
 
 Get or set the cookie's expiration time.
+
+=item B<max_age()>
+
+Get or set the cookie's max_age value.
 
 =back
 
