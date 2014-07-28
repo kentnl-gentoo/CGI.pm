@@ -5,7 +5,7 @@ use Test::More;
 
 use CGI ':all';
 
-
+delete( $ENV{SCRIPT_NAME} ); # Win32 fix, see RT 89992
 $ENV{HTTP_X_FORWARDED_HOST} = 'proxy:8484';
 $ENV{SERVER_PROTOCOL}       = 'HTTP/1.0';
 $ENV{SERVER_PORT}           = 8080;
@@ -15,6 +15,10 @@ is virtual_port() => 8484, 'virtual_port()';
 is server_port()  => 8080, 'server_port()';
 
 is url() => 'http://proxy:8484', 'url()';
+
+$ENV{HTTP_X_FORWARDED_HOST} = '192.169.1.1, proxy1:80, 127.0.0.1, proxy2:8484';
+
+is url() => 'http://proxy2:8484', 'url() with multiple proxies';
 
 # let's see if we do the defaults right
 

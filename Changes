@@ -1,3 +1,41 @@
+4.04 2014-08-01
+
+    [ REMOVED / DEPRECATIONS ]
+    - startform and endform methods removed (previously deprecated, you
+      should be using the start_form and end_form methods)
+    - both CGI::Apache and CGI::Switch have been removed as these modules
+      1) have been deprecated for *years*, and 2) do nothing whatsoever
+
+    [ SPEC / BUG FIXES ]
+    - handle multiple values in X-Forwarded-Host header, we follow the
+      logic in most other frameworks and take the last value from the list
+      (RT #54487)
+    - reverse the order of TEMP dir placement for WINDOWS: TEMP > TMP > WINDIR
+      (RT #71799, thanks to jeff@math.tntech.edu), this returns the behaviour
+      to pre e24d04e9bc5fda7722444b02fec135d8cc2ff488 but with the undefined
+      fix still in place
+    - fix warnings when QUERY_STRING has empty key=value pairs (RT #54511)
+    - pad custom 500 status response messages to > 512 for MSIE (RT #81946)
+    - make Vars tied hash delete method return the value deleted from the hash
+      making it act like perl's delete (RT #51020)
+
+    [ TESTING ]
+    - add .travis.yml (https://travis-ci.org)
+    - test case for RT #53966 - disallow filenames with ~ char
+    - test case for RT #55166 - calling Vars to get the filename does not return
+      a filehandle, so this cannot be used in the call to uploadinfo, also
+      update documentation for the uploadInfo to show that ->Vars should not be
+      used to get the filename for this method
+    - fix t/url.t to pass on Win32 platforms that have the SCRIPT_NAME env
+      variable set (RT #89992)
+    - add procedural call tests for upload and uploadInfo to confirm these work
+      as should (RT #91136)
+
+    [ DOCUMENTATION ]
+    - tweak perldoc for -utf8 option (RT #54341, thanks to Helmut Richter)
+    - explain the HTML generation functions should no longer be used and that
+      they may be deprecated in a future release
+
 4.03 2014-07-02
 
     [ REMOVED / DEPRECATIONS ]

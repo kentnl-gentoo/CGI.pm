@@ -30,13 +30,14 @@
       "runtime" : {
          "requires" : {
             "File::Spec" : "0.82",
+            "Test::Deep" : "0.11",
             "Test::More" : "0.98",
             "if" : "0",
             "perl" : "5.008001"
          }
       }
    },
-   "release_status" : "stable",
+   "release_status" : "testing",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/leejo/CGI.pm/issues"
@@ -49,5 +50,5 @@
          "url" : "https://github.com/leejo/CGI.pm"
       }
    },
-   "version" : "4.03"
+   "version" : "4.03_01"
 }

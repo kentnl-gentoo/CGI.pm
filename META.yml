@@ -18,6 +18,7 @@ no_index:
     - t
 requires:
   File::Spec: '0.82'
+  Test::Deep: '0.11'
   Test::More: '0.98'
   if: '0'
   perl: '5.008001'
@@ -26,4 +27,4 @@ resources:
   homepage: https://metacpan.org/module/CGI
   license: http://dev.perl.org/licenses/
   repository: https://github.com/leejo/CGI.pm
-version: '4.03'
+version: 4.03_01
