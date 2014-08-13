@@ -12,7 +12,7 @@
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
    },
-   "name" : "CGI.pm",
+   "name" : "CGI",
    "no_index" : {
       "directory" : [
          "t",
@@ -50,5 +50,5 @@
          "url" : "https://github.com/leejo/CGI.pm"
       }
    },
-   "version" : "4.03_02"
+   "version" : "4.03_03"
 }

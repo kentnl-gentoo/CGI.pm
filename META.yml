@@ -10,7 +10,7 @@ license: unknown
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-name: CGI.pm
+name: CGI
 no_index:
   directory:
     - t
@@ -27,4 +27,4 @@ resources:
   homepage: https://metacpan.org/module/CGI
   license: http://dev.perl.org/licenses/
   repository: https://github.com/leejo/CGI.pm
-version: 4.03_02
+version: 4.03_03
