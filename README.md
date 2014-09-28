@@ -6,7 +6,7 @@ This is CGI.pm, an easy-to-use Perl5 library for writing CGI scripts.
 
 ## CGI.pm HAS BEEN REMOVED FROM THE PERL CORE
 
-	http://perl5.git.perl.org/perl.git/commitdiff/e9fa5a80
+http://perl5.git.perl.org/perl.git/commitdiff/e9fa5a80
 
 If you upgrade to a new version of perl or if you rely on a
 system or vendor perl and get an updated version of perl through a system
@@ -30,10 +30,12 @@ http://www.nntp.perl.org/group/perl.perl5.porters/2013/05/msg202130.html
 To install this module, cd to the directory that contains this README
 file and type the following:
 
-   perl Makefile.PL
-   make
-   make test
-   make install
+```bash
+perl Makefile.PL
+make
+make test
+make install
+```
 
 ## WHAT SYSTEMS DOES IT WORK WITH?
 
@@ -73,7 +75,16 @@ These tickets are still considered active, they will be closed when
 the issues on github are closed.
 
 If you would like to contribute then please comment on issues, raise
-issues, pull requests, etc.
+issues, pull requests, etc. If you do raise an issue please provide
+the following information: Your version of perl (```perl -V```), the
+version of CGI.pm you are using (i will almost certainly ask you to
+upgrade to the latest version so please try that first), the version
+of your operating system.
+
+Failing tests cases are appreciated with issues, and if you submit a
+patch then it will *not* be accepted unless you provide a reasonable
+automated test case with it (please see the existing tests in t/ for
+examples)
 
 ## WHERE CAN I LEARN MORE?
 

@@ -24,6 +24,7 @@ requires:
   constant: '0'
   if: '0'
   overload: '0'
+  parent: '0.225'
   perl: '5.008001'
   strict: '0'
   utf8: '0'
@@ -33,4 +34,4 @@ resources:
   homepage: https://metacpan.org/module/CGI
   license: http://dev.perl.org/licenses/
   repository: https://github.com/leejo/CGI.pm
-version: 4.04_01
+version: 4.04_02
