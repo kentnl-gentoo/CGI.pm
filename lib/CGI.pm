@@ -4,7 +4,7 @@ use if $] >= 5.019, 'deprecate';
 use Carp 'croak';
 use CGI::File::Temp;
 
-$CGI::VERSION='4.04_05';
+$CGI::VERSION='4.05';
 
 use CGI::Util qw(rearrange rearrange_header make_attributes unescape escape expires ebcdic2ascii ascii2ebcdic);
 
@@ -25,6 +25,7 @@ $MOD_PERL            = 0; # no mod_perl by default
 $POST_MAX            = -1; # no limit to uploaded files
 $DISABLE_UPLOADS     = 0;
 $UNLINK_TMP_FILES    = 1;
+$LIST_CONTEXT_WARN   = 1;
 
 @SAVED_SYMBOLS = ();
 
@@ -413,6 +414,17 @@ sub upload_hook {
 ####
 sub param {
     my($self,@p) = self_or_default(@_);
+
+	# list context can be dangerous so warn:
+	# http://blog.gerv.net/2014/10/new-class-of-vulnerability-in-perl-web-applications
+	if ( wantarray && $LIST_CONTEXT_WARN ) {
+		my ( $package, $filename, $line ) = caller;
+		if ( $package ne 'CGI' ) {
+			warn "CGI::param called in list context from package $package line $line, this can lead to vulnerabilities. "
+				. 'See the warning in "Fetching the value or values of a single named parameter"';
+		}
+	}
+
     return $self->all_parameters unless @p;
     my($name,$value,@other);
 
@@ -3884,6 +3896,7 @@ END_OF_FUNC
 'uploadInfo' => <<'END_OF_FUNC',
 sub uploadInfo {
     my($self,$filename) = self_or_default(@_);
+    return if ! defined $$filename;
     return $self->{'.tmpfiles'}->{$$filename}->{info};
 }
 END_OF_FUNC
@@ -4562,13 +4575,30 @@ named parameter. If the parameter is multivalued (e.g. from multiple
 selections in a scrolling list), you can ask to receive an array.  Otherwise
 the method will return a single value.
 
+B<Warning> - calling param in list context can lead to vulnerabilities if
+you do not sanitise user input as it is possible to inject other param
+keys and values into your code. The following code is an example of a
+vulnerability as the call to param will be evaluated in list context and
+thus possibly inject extra keys and values into the hash:
+
+	my %user_info = (
+		id   => 1,
+		name => $query->param('name'),
+	);
+
+The fix for the above is to force scalar context on the call to ->param by
+prefixing it with "scalar"
+
+	name => scalar $query->param('name'),
+
+If you call param in list context a warning will be raised by CGI.pm, you can
+disable this warning by setting $CGI::LIST_CONTEXT_WARN to 0.
+
 If a value is not given in the query string, as in the queries
 "name1=&name2=", it will be returned as an empty string.
 
-
 If the parameter does not exist at all, then param() will return undef
 in a scalar context, and the empty list in a list context.
-
 
 =head2 Setting the value(s) of a named parameter:
 
