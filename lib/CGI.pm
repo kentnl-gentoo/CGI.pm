@@ -4,7 +4,7 @@ use if $] >= 5.019, 'deprecate';
 use Carp 'croak';
 use CGI::File::Temp;
 
-$CGI::VERSION='4.07';
+$CGI::VERSION='4.08';
 
 use CGI::Util qw(rearrange rearrange_header make_attributes unescape escape expires ebcdic2ascii ascii2ebcdic);
 
@@ -401,7 +401,7 @@ sub upload_hook {
   $self->{'use_tempfile'} = $use_tempfile if defined $use_tempfile;
 }
 
-#### Method: param
+#### Method: param / multi_param
 # Returns the value(s)of a named parameter.
 # If invoked in a list context, returns the
 # entire list.  Otherwise returns the first
@@ -411,7 +411,18 @@ sub upload_hook {
 # If more than one argument is provided, the
 # second and subsequent arguments are used to
 # set the value of the parameter.
+#
+# note that calling param() in list context
+# will raise a warning about potential bad
+# things, hence the multi_param method
 ####
+sub multi_param {
+	# we don't need to set $LIST_CONTEXT_WARN to 0 here
+	# because param() will check the caller before warning
+	my @list_of_params = param( @_ );
+	return @list_of_params;
+}
+
 sub param {
     my($self,@p) = self_or_default(@_);
 
@@ -2947,7 +2958,13 @@ sub url {
 
     my $uri         =  $rewrite && $request_uri ? $request_uri : $script_name;
     $uri            =~ s/\?.*$//s; # remove query string
-    $uri            =~ s/\Q$ENV{PATH_INFO}\E$// if defined $ENV{PATH_INFO};
+
+	if ( defined( $ENV{PATH_INFO} ) ) {
+		# IIS sometimes sets PATH_INFO to the same value as SCRIPT_NAME so only sub it out
+		# if SCRIPT_NAME isn't defined or isn't the same value as PATH_INFO
+    	$uri =~ s/\Q$ENV{PATH_INFO}\E$//
+			if ( ! defined( $ENV{SCRIPT_NAME} ) or $ENV{PATH_INFO} ne $ENV{SCRIPT_NAME} );
+	}
 
     if ($full) {
         my $protocol = $self->protocol();
@@ -4238,6 +4255,10 @@ __END__
 
 CGI - Handle Common Gateway Interface requests and responses
 
+=for html
+<a href='https://travis-ci.org/leejo/CGI.pm?branch=master'><img src='https://travis-ci.org/leejo/CGI.pm?branch=master' alt='Build Status' /></a>
+<a href='https://coveralls.io/r/leejo/CGI.pm'><img src='https://coveralls.io/repos/leejo/CGI.pm/badge.png?branch=master' alt='Coverage Status' /></a>
+
 =head1 SYNOPSIS
 
     use CGI;
@@ -4245,7 +4266,8 @@ CGI - Handle Common Gateway Interface requests and responses
     my $q = CGI->new;
 
     # Process an HTTP request
-     @values  = $q->param('form_field');
+     @values  = $q->multi_param('form_field');
+     $value   = $q->param('param_name');
 
      $fh      = $q->upload('file_field');
 
@@ -4548,11 +4570,13 @@ parsed keywords can be obtained as an array using the keywords() method.
 
 =head2 Fetching the names of all the parameters passed to your script:
 
+     @names = $query->multi_param
+
      @names = $query->param
 
 If the script was invoked with a parameter list
-(e.g. "name1=value1&name2=value2&name3=value3"), the param() method
-will return the parameter names as a list.  If the script was invoked
+(e.g. "name1=value1&name2=value2&name3=value3"), the param() / multi_param()
+methods will return the parameter names as a list.  If the script was invoked
 as an <ISINDEX> script and contains a string without ampersands
 (e.g. "value1+value2+value3") , there will be a single parameter named
 "keywords" containing the "+"-delimited keywords.
@@ -4565,22 +4589,26 @@ of the spec, and so isn't guaranteed).
 
 =head2 Fetching the value or values of a single named parameter:
 
-    @values = $query->param('foo');
+    @values = $query->multi_param('foo');
 
 	      -or-
 
     $value = $query->param('foo');
 
-Pass the param() method a single argument to fetch the value of the
-named parameter. If the parameter is multivalued (e.g. from multiple
+Pass the param() / multi_param() method a single argument to fetch the value
+of the named parameter. If the parameter is multivalued (e.g. from multiple
 selections in a scrolling list), you can ask to receive an array.  Otherwise
 the method will return a single value.
 
-B<Warning> - calling param in list context can lead to vulnerabilities if
+B<Warning> - calling param() in list context can lead to vulnerabilities if
 you do not sanitise user input as it is possible to inject other param
-keys and values into your code. The following code is an example of a
-vulnerability as the call to param will be evaluated in list context and
-thus possibly inject extra keys and values into the hash:
+keys and values into your code. This is why the multi_param() method exists,
+to make it clear that a list is being returned, note that param() can stil
+be called in list context and will return a list for back compatibility.
+
+The following code is an example of a vulnerability as the call to param will
+be evaluated in list context and thus possibly inject extra keys and values
+into the hash:
 
 	my %user_info = (
 		id   => 1,
@@ -4592,8 +4620,9 @@ prefixing it with "scalar"
 
 	name => scalar $query->param('name'),
 
-If you call param in list context a warning will be raised by CGI.pm, you can
-disable this warning by setting $CGI::LIST_CONTEXT_WARN to 0.
+If you call param() in list context with an argument a warning will be raised
+by CGI.pm, you can disable this warning by setting $CGI::LIST_CONTEXT_WARN to 0
+or by using the multi_param() method instead
 
 If a value is not given in the query string, as in the queries
 "name1=&name2=", it will be returned as an empty string.
@@ -5234,7 +5263,13 @@ to use with certain servers that expect all their scripts to be NPH.
 
 The B<-charset> parameter can be used to control the character set
 sent to the browser.  If not provided, defaults to ISO-8859-1.  As a
-side effect, this sets the charset() method as well.
+side effect, this sets the charset() method as well. B<Note> that the
+default being ISO-8859-1 may not make sense for all content types, e.g.:
+
+    Content-Type: image/gif; charset=ISO-8859-1
+
+In the above case you need to pass -charset => '' to prevent the default
+being used.
 
 The B<-attachment> parameter can be used to turn the page into an
 attachment.  Instead of displaying the page, some browsers will prompt
@@ -5824,11 +5859,7 @@ character becomes "&lt;", ">" becomes "&gt;", "&" becomes "&amp;", and
 the quote character becomes "&quot;".  In addition, the hexadecimal
 0x8b and 0x9b characters, which some browsers incorrectly interpret
 as the left and right angle-bracket characters, are replaced by their
-numeric character entities ("&#8249" and "&#8250;").  If you manually change
-the charset, either by calling the charset() method explicitly or by
-passing a -charset argument to header(), then B<all> characters will
-be replaced by their numeric entities, since CGI.pm has no lookup
-table for all the possible encodings.
+numeric character entities ("&#8249" and "&#8250;").
 
 C<escapeHTML()> expects the supplied string to be a character string. This means you
 should Encode::decode data received from "outside" and Encode::encode your
@@ -6256,7 +6287,7 @@ systems (such as Windows NT), you will need to close the temporary file's
 filehandle before your program exits. Otherwise the attempt to delete the
 temporary file will fail.
 
-=head3 Changes in temporary file handling (v4.07+)
+=head3 Changes in temporary file handling (v4.05+)
 
 CGI.pm had its temporary file handling significantly refactored. this logic is
 now all deferred to File::Temp (which is wrapped in a compatibility object,
@@ -7983,7 +8014,7 @@ available for your use:
 
 The CGI.pm distribution is copyright 1995-2007, Lincoln D. Stein. It is
 distributed under GPL and the Artistic License 2.0. It is currently
-maintained by Lee Johnson with help from many contributors.
+maintained by Lee Johnson (LEEJO) with help from many contributors.
 
 =head1 CREDITS
 
