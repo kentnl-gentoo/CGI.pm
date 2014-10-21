@@ -4,7 +4,7 @@ use if $] >= 5.019, 'deprecate';
 use Carp 'croak';
 use CGI::File::Temp;
 
-$CGI::VERSION='4.08';
+$CGI::VERSION='4.09';
 
 use CGI::Util qw(rearrange rearrange_header make_attributes unescape escape expires ebcdic2ascii ascii2ebcdic);
 
@@ -1072,6 +1072,7 @@ sub read_postdata_putdata {
 			UNLINK => $UNLINK_TMP_FILES,
 			DIR    => $tmp_dir,
 		);
+		$filehandle->_mp_filename( $postOrPut );
 
         $CGI::DefaultClass->binmode($filehandle)
           if $CGI::needs_binmode
@@ -1123,11 +1124,11 @@ sub read_postdata_putdata {
 
         # Save some information about the uploaded file where we can get
         # at it later.
-        # Use the typeglob as the key, as this is guaranteed to be
+        # Use the typeglob + filename as the key, as this is guaranteed to be
         # unique for each filehandle.  Don't use the file descriptor as
         # this will be re-used for each filehandle if the
         # close_upload_files feature is used.
-        $self->{'.tmpfiles'}->{$$filehandle} = {
+        $self->{'.tmpfiles'}->{$$filehandle . $filehandle} = {
             hndl => $filehandle,
 			name => $filehandle->filename,
             info => {%header},
@@ -3134,7 +3135,13 @@ sub _name_and_path_from_env {
     $uri =~ s/\?.*//s;
     $uri = unescape($uri);
 
-    if ($uri ne "$script_name$path_info") {
+    if ( $IIS ) {
+      # IIS doesn't set $ENV{PATH_INFO} correctly. It sets it to
+      # $ENV{SCRIPT_NAME}path_info 
+      # IIS also doesn't set $ENV{REQUEST_URI} so we don't want to do
+      # the test below, hence this comes first
+      $path_info =~ s/^\Q$script_name\E(.*)/$1/;
+    } elsif ($uri ne "$script_name$path_info") {
         my $script_name_pattern = quotemeta($script_name);
         my $path_info_pattern = quotemeta($path_info);
         $script_name_pattern =~ s{(?:\\/)+}{/+}g;
@@ -3777,11 +3784,11 @@ sub read_multipart {
 
 	  # Save some information about the uploaded file where we can get
 	  # at it later.
-	  # Use the typeglob as the key, as this is guaranteed to be
+	  # Use the typeglob + filename as the key, as this is guaranteed to be
 	  # unique for each filehandle.  Don't use the file descriptor as
 	  # this will be re-used for each filehandle if the
 	  # close_upload_files feature is used.
-	  $self->{'.tmpfiles'}->{$$filehandle}= {
+      $self->{'.tmpfiles'}->{$$filehandle . $filehandle} = {
               hndl => $filehandle,
 		  name => $filehandle->filename,
 	      info => {%header},
@@ -3850,6 +3857,7 @@ sub read_multipart_related {
 		UNLINK => $UNLINK_TMP_FILES,
 		DIR    => $tmp_dir,
 	  );
+	  $filehandle->_mp_filename( $filehandle->filename );
 
 	  $CGI::DefaultClass->binmode($filehandle) if $CGI::needs_binmode 
                      && defined fileno($filehandle);
@@ -3878,11 +3886,11 @@ sub read_multipart_related {
 
 	  # Save some information about the uploaded file where we can get
 	  # at it later.
-	  # Use the typeglob as the key, as this is guaranteed to be
+	  # Use the typeglob + filename as the key, as this is guaranteed to be
 	  # unique for each filehandle.  Don't use the file descriptor as
 	  # this will be re-used for each filehandle if the
 	  # close_upload_files feature is used.
-	  $self->{'.tmpfiles'}->{$$filehandle}= {
+	  $self->{'.tmpfiles'}->{$$filehandle . $filehandle} = {
               hndl => $filehandle,
 		  name => $filehandle->filename,
 	      info => {%header},
@@ -3907,7 +3915,7 @@ END_OF_FUNC
 'tmpFileName' => <<'END_OF_FUNC',
 sub tmpFileName {
     my($self,$filename) = self_or_default(@_);
-    return $self->{'.tmpfiles'}->{$$filename}->{name} || '';
+    return $self->{'.tmpfiles'}->{$$filename . $filename}->{name} || '';
 }
 END_OF_FUNC
 
@@ -3915,7 +3923,7 @@ END_OF_FUNC
 sub uploadInfo {
     my($self,$filename) = self_or_default(@_);
     return if ! defined $$filename;
-    return $self->{'.tmpfiles'}->{$$filename}->{info};
+    return $self->{'.tmpfiles'}->{$$filename . $filename}->{info};
 }
 END_OF_FUNC
 
@@ -4256,7 +4264,7 @@ __END__
 CGI - Handle Common Gateway Interface requests and responses
 
 =for html
-<a href='https://travis-ci.org/leejo/CGI.pm?branch=master'><img src='https://travis-ci.org/leejo/CGI.pm?branch=master' alt='Build Status' /></a>
+<a href='https://travis-ci.org/leejo/CGI.pm?branch=master'><img src='https://travis-ci.org/leejo/CGI.pm.svg?branch=master' alt='Build Status' /></a>
 <a href='https://coveralls.io/r/leejo/CGI.pm'><img src='https://coveralls.io/repos/leejo/CGI.pm/badge.png?branch=master' alt='Coverage Status' /></a>
 
 =head1 SYNOPSIS
@@ -7606,7 +7614,8 @@ execute the additional path information as a Perl script.
 If you use the ordinary file associations mapping, the
 path information will be present in the environment, 
 but incorrect.  The best thing to do is to avoid using additional
-path information in CGI scripts destined for use with IIS.
+path information in CGI scripts destined for use with IIS. A
+best attempt has been made to make CGI.pm do the right thing.
 
 =item B<path_translated()>
 
