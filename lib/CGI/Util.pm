@@ -6,7 +6,7 @@ use if $] >= 5.019, 'deprecate';
 our @EXPORT_OK = qw(rearrange rearrange_header make_attributes unescape escape
         expires ebcdic2ascii ascii2ebcdic);
 
-our $VERSION = '4.10';
+our $VERSION = '4.10_01';
 
 use constant EBCDIC => "\t" ne "\011";
 
@@ -167,7 +167,7 @@ sub make_attributes {
     my $value = $escape ? simple_escape($attr->{$_}) : $attr->{$_};
     push(@att,defined($attr->{$_}) ? qq/$key=$quote$value$quote/ : qq/$key/);
     }
-    return @att;
+    return sort @att;
 }
 
 sub simple_escape {
