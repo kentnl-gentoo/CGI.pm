@@ -4,7 +4,7 @@
       "unknown"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.140640",
+   "generated_by" : "ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.142060",
    "license" : [
       "unknown"
    ],
@@ -30,9 +30,12 @@
       "runtime" : {
          "requires" : {
             "Carp" : "0",
+            "Config" : "0",
+            "Encode" : "0",
             "Exporter" : "0",
             "File::Spec" : "0.82",
             "File::Temp" : "0",
+            "HTML::Entities" : "3.69",
             "base" : "0",
             "constant" : "0",
             "if" : "0",
@@ -45,7 +48,7 @@
          }
       }
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/leejo/CGI.pm/issues"
@@ -58,5 +61,5 @@
          "url" : "https://github.com/leejo/CGI.pm"
       }
    },
-   "version" : "4.10_01"
+   "version" : "4.11"
 }
