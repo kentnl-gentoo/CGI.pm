@@ -38,4 +38,4 @@ resources:
   homepage: https://metacpan.org/module/CGI
   license: http://dev.perl.org/licenses/
   repository: https://github.com/leejo/CGI.pm
-version: 4.13_01
+version: 4.13_02
