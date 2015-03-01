@@ -7,6 +7,8 @@ system( "perl", "t/gen-tests/gen-start-end-tags.pl" );
 # the contents of the Makefile that is written.
 WriteMakefile(
     INSTALLDIRS      => ( $] >= 5.012 ? 'site' : 'perl' ),
+    ABSTRACT_FROM    => 'lib/CGI.pod',
+    VERSION_FROM     => 'lib/CGI.pm',
     NAME             => 'CGI',
     DISTNAME         => 'CGI',
     VERSION_FROM     => 'lib/CGI.pm',
@@ -15,7 +17,6 @@ WriteMakefile(
         'Carp'           => 0,     # Carp was first released with perl 6
         'Exporter'       => 0,     # Exporter was first released with perl 5
         'base'           => 0,     # base was first released with perl 5.00405
-        'constant'       => 0,     # constant was first released with perl 5.005
         'overload'       => 0,     # overload was first released with perl 5.002
         'strict'         => 0,     # strict was first released with perl 5
         'utf8'           => 0,     # utf8 was first released with perl v5.6.0

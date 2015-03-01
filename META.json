@@ -1,10 +1,10 @@
 {
-   "abstract" : "unknown",
+   "abstract" : "Handle Common Gateway Interface requests and responses",
    "author" : [
       "unknown"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.142060",
+   "generated_by" : "ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.143240",
    "license" : [
       "unknown"
    ],
@@ -37,7 +37,6 @@
             "File::Temp" : "0",
             "HTML::Entities" : "3.69",
             "base" : "0",
-            "constant" : "0",
             "if" : "0",
             "overload" : "0",
             "parent" : "0.225",
@@ -61,5 +60,5 @@
          "url" : "https://github.com/leejo/CGI.pm"
       }
    },
-   "version" : "4.13_02"
+   "version" : "4.13_03"
 }
