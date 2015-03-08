@@ -3,7 +3,7 @@ require 5.008001;
 use if $] >= 5.019, 'deprecate';
 use Carp 'croak';
 
-$CGI::VERSION='4.13_03';
+$CGI::VERSION='4.13_04';
 
 use CGI::Util qw(rearrange rearrange_header make_attributes unescape escape expires ebcdic2ascii ascii2ebcdic);
 
@@ -240,7 +240,7 @@ sub _set_binmode {
 		cookie Dump raw_cookie request_method query_string Accept user_agent remote_host content_type
 		remote_addr referer server_name server_software server_port server_protocol virtual_port
 		virtual_host remote_ident auth_type http append save_parameters restore_parameters param_fetch
-		remote_user user_name header redirect import_names put Delete Delete_all url_param cgi_error
+		remote_user user_name header redirect import_names put Delete Delete_all url_param cgi_error env_query_string
 	/ ],
 	':netscape' => [qw/blink fontsize center/],
 	':ssl'      => [qw/https/],
@@ -263,6 +263,15 @@ sub import {
 
     $self->_setup_symbols(@_);
     my ($callpack, $callfile, $callline) = caller;
+
+	if ( $callpack eq 'CGI::Fast' ) {
+		# fixes GH #11 (and GH #12 in CGI::Fast since
+		# sub import was added to CGI::Fast in 9537f90
+		# so we need to move up a level to export the
+		# routines to the namespace of whatever is using
+		# CGI::Fast
+		($callpack, $callfile, $callline) = caller(1);
+	}
 
     # To allow overriding, search through the packages
     # Till we find one in which the correct subroutine is defined.
@@ -2904,6 +2913,10 @@ sub query_string {
       push(@pairs,".cgifields=".escape("$_"));
     }
     return join($USE_PARAM_SEMICOLONS ? ';' : '&',@pairs);
+}
+
+sub env_query_string {
+    return (defined $ENV{'QUERY_STRING'}) ? $ENV{'QUERY_STRING'} : undef;
 }
 
 #### Method: accept

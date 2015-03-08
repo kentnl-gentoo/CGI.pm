@@ -31,6 +31,7 @@
          "requires" : {
             "Carp" : "0",
             "Config" : "0",
+            "Cwd" : "0",
             "Encode" : "0",
             "Exporter" : "0",
             "File::Spec" : "0.82",
@@ -60,5 +61,5 @@
          "url" : "https://github.com/leejo/CGI.pm"
       }
    },
-   "version" : "4.13_03"
+   "version" : "4.13_04"
 }
