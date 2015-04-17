@@ -19,7 +19,6 @@ no_index:
 requires:
   Carp: '0'
   Config: '0'
-  Cwd: '0'
   Encode: '0'
   Exporter: '0'
   File::Spec: '0.82'
@@ -38,4 +37,4 @@ resources:
   homepage: https://metacpan.org/module/CGI
   license: http://dev.perl.org/licenses/
   repository: https://github.com/leejo/CGI.pm
-version: '4.14'
+version: 4.14_01

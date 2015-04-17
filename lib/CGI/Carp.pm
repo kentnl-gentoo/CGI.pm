@@ -322,7 +322,7 @@ use File::Spec;
 
 $main::SIG{__WARN__}=\&CGI::Carp::warn;
 
-$CGI::Carp::VERSION     = '4.14';
+$CGI::Carp::VERSION     = '4.14_01';
 $CGI::Carp::CUSTOM_MSG  = undef;
 $CGI::Carp::DIE_HANDLER = undef;
 $CGI::Carp::TO_BROWSER  = 1;
@@ -494,7 +494,7 @@ sub carpout {
     
     open(SAVEERR, ">&STDERR");
     open(STDERR, ">&$no") or 
-	( print SAVEERR "Unable to redirect STDERR: $!\n" and exit(1) );
+	( print SAVEERR "Unable to redirect >&$no: $!\n" and exit(1) );
 }
 
 sub warningsToBrowser {

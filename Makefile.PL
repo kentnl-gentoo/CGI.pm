@@ -1,8 +1,6 @@
 use ExtUtils::MakeMaker;
 my $mm = $ExtUtils::MakeMaker::VERSION;
 
-system( "perl", "t/gen-tests/gen-start-end-tags.pl" );
-
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
@@ -14,7 +12,6 @@ WriteMakefile(
     VERSION_FROM     => 'lib/CGI.pm',
     MIN_PERL_VERSION => '5.8.1',
     PREREQ_PM        => {
-        'Cwd'            => 0,     # Cwd was first released with perl 5
         'Carp'           => 0,     # Carp was first released with perl 5
         'Exporter'       => 0,     # Exporter was first released with perl 5
         'base'           => 0,     # base was first released with perl 5.00405
@@ -31,6 +28,7 @@ WriteMakefile(
         'Config'         => 0,    # Config was first released with perl 5.00307
     },
     TEST_REQUIRES   => {
+        'Cwd'              => 0,     # Cwd was first released with perl 5
         'POSIX'            => 0,    # POSIX was first released with perl 5
         'IO::File'         => 0,    # IO::File was first released with perl 5.00307
         'IO::Handle'       => 0,    # IO::Handle was first released with perl 5.00307

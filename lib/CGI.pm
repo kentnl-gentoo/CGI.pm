@@ -3,7 +3,7 @@ require 5.008001;
 use if $] >= 5.019, 'deprecate';
 use Carp 'croak';
 
-$CGI::VERSION='4.14';
+$CGI::VERSION='4.14_01';
 
 use CGI::Util qw(rearrange rearrange_header make_attributes unescape escape expires ebcdic2ascii ascii2ebcdic);
 
@@ -283,7 +283,7 @@ sub import {
     my @packages = ($self,@{"$self\:\:ISA"});
     for $sym (keys %EXPORT) {
 	my $pck;
-	my $def = ${"$self\:\:AutoloadClass"} || $DefaultClass;
+	my $def = $DefaultClass;
 	for $pck (@packages) {
 	    if (defined(&{"$pck\:\:$sym"})) {
 		$def = $pck;
@@ -405,7 +405,7 @@ sub param {
 	if ( wantarray && $LIST_CONTEXT_WARN ) {
 		my ( $package, $filename, $line ) = caller;
 		if ( $package ne 'CGI' ) {
-			warn "CGI::param called in list context from package $package line $line, this can lead to vulnerabilities. "
+			warn "CGI::param called in list context from $filename line $line, this can lead to vulnerabilities. "
 				. 'See the warning in "Fetching the value or values of a single named parameter"';
 		}
 	}
@@ -2689,8 +2689,16 @@ sub url {
 	if ( defined( $ENV{PATH_INFO} ) ) {
 		# IIS sometimes sets PATH_INFO to the same value as SCRIPT_NAME so only sub it out
 		# if SCRIPT_NAME isn't defined or isn't the same value as PATH_INFO
-    	$uri =~ s/\Q$ENV{PATH_INFO}\E$//
+		$uri =~ s/\Q$ENV{PATH_INFO}\E$//
 			if ( ! defined( $ENV{SCRIPT_NAME} ) or $ENV{PATH_INFO} ne $ENV{SCRIPT_NAME} );
+
+		# if we're not IIS then keep to spec, the relevant info is here:
+		# https://tools.ietf.org/html/rfc3875#section-4.1.13, namely
+		# "No PATH_INFO segment (see section 4.1.5) is included in the
+		# SCRIPT_NAME value." (see GH #126, GH #152, GH #176)
+		if ( ! $IIS ) {
+			$uri =~ s/\Q$ENV{PATH_INFO}\E$//;
+		}
 	}
 
     if ($full) {

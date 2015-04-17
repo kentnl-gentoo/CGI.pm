@@ -31,7 +31,6 @@
          "requires" : {
             "Carp" : "0",
             "Config" : "0",
-            "Cwd" : "0",
             "Encode" : "0",
             "Exporter" : "0",
             "File::Spec" : "0.82",
@@ -48,7 +47,7 @@
          }
       }
    },
-   "release_status" : "stable",
+   "release_status" : "testing",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/leejo/CGI.pm/issues"
@@ -61,5 +60,5 @@
          "url" : "https://github.com/leejo/CGI.pm"
       }
    },
-   "version" : "4.14"
+   "version" : "4.14_01"
 }
