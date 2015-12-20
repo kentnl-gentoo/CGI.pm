@@ -3,7 +3,7 @@ require 5.008001;
 use if $] >= 5.019, 'deprecate';
 use Carp 'croak';
 
-$CGI::VERSION='4.22';
+$CGI::VERSION='4.24';
 
 use CGI::Util qw(rearrange rearrange_header make_attributes unescape escape expires ebcdic2ascii ascii2ebcdic);
 
@@ -398,9 +398,10 @@ sub param {
 
 	# list context can be dangerous so warn:
 	# http://blog.gerv.net/2014.10/new-class-of-vulnerability-in-perl-web-applications
-	if ( wantarray && $LIST_CONTEXT_WARN ) {
+	if ( wantarray && $LIST_CONTEXT_WARN == 1 ) {
 		my ( $package, $filename, $line ) = caller;
 		if ( $package ne 'CGI' ) {
+			$LIST_CONTEXT_WARN++; # only warn once
 			warn "CGI::param called in list context from $filename line $line, this can lead to vulnerabilities. "
 				. 'See the warning in "Fetching the value or values of a single named parameter"';
 		}

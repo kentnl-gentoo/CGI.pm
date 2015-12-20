@@ -103,8 +103,10 @@ L<Template::Toolkit> module.
 
 These functions, and perldoc for them, are considered deprecated, they
 are no longer being maintained and no fixes or features for them will be
-accepted. They will, however, continue to exist in CGI.pm. All documentation
-for these functions has been moved to L<CGI::HTML::Functions>.
+accepted. They will, however, continue to exist in CGI.pm without any
+deprecation warnings ("soft" deprecation) so you can continue to use
+them if you really want to. All documentation for these functions has
+been moved to L<CGI::HTML::Functions>.
 
 =head1 Programming style
 
@@ -1819,7 +1821,7 @@ for suggestions and bug fixes.
 
 Address bug reports and comments to: L<https://github.com/leejo/CGI.pm/issues>
 
-See the L<https://github.com/leejo/CGI.pm/CONTRIBUTING.md> file for information
+See the L<https://github.com/leejo/CGI.pm/blob/master/CONTRIBUTING.md> file for information
 on raising issues and contributing
 
 The original bug tracker can be found at:
