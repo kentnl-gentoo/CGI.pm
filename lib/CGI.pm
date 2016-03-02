@@ -3,7 +3,7 @@ require 5.008001;
 use if $] >= 5.019, 'deprecate';
 use Carp 'croak';
 
-$CGI::VERSION='4.26';
+$CGI::VERSION='4.27';
 
 use CGI::Util qw(rearrange rearrange_header make_attributes unescape escape expires ebcdic2ascii ascii2ebcdic);
 
@@ -1241,7 +1241,7 @@ sub STORE {
     my $self = shift;
     my $tag  = shift;
     my $vals = shift;
-    my @vals = index($vals,"\0")!=-1 ? split("\0",$vals) : $vals;
+    my @vals = defined($vals) && index($vals,"\0")!=-1 ? split("\0",$vals) : $vals;
     $self->param(-name=>$tag,-value=>\@vals);
 }
 
