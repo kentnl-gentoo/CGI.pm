@@ -3,7 +3,7 @@ require 5.008001;
 use if $] >= 5.019, 'deprecate';
 use Carp 'croak';
 
-$CGI::VERSION='4.27';
+$CGI::VERSION='4.28';
 
 use CGI::Util qw(rearrange rearrange_header make_attributes unescape escape expires ebcdic2ascii ascii2ebcdic);
 
@@ -23,6 +23,7 @@ $DISABLE_UPLOADS     = 0;
 $UNLINK_TMP_FILES    = 1;
 $LIST_CONTEXT_WARN   = 1;
 $ENCODE_ENTITIES     = q{&<>"'};
+$ALLOW_DELETE_CONTENT = 0;
 
 @SAVED_SYMBOLS = ();
 
@@ -90,6 +91,7 @@ sub initialize_globals {
     $BEEN_THERE = 0;
     $DTD_PUBLIC_IDENTIFIER = "";
     undef @QUERY_PARAM;
+    undef %QUERY_PARAM;
     undef %EXPORT;
     undef $QUERY_CHARSET;
     undef %QUERY_FIELDNAMES;
