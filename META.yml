@@ -24,7 +24,7 @@ requires:
   Exporter: '0'
   File::Find: '0'
   File::Spec: '0.82'
-  File::Temp: '0'
+  File::Temp: '0.17'
   HTML::Entities: '3.69'
   IO::File: '0'
   IO::Handle: '0'
@@ -45,5 +45,5 @@ resources:
   homepage: https://metacpan.org/module/CGI
   license: http://dev.perl.org/licenses/
   repository: https://github.com/leejo/CGI.pm
-version: '4.30'
+version: '4.31'
 x_serialization_backend: 'CPAN::Meta::YAML version 0.018'
