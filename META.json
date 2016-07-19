@@ -22,28 +22,24 @@
    },
    "prereqs" : {
       "build" : {
-         "requires" : {}
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
       },
       "configure" : {
-         "requires" : {}
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
       },
       "runtime" : {
          "requires" : {
             "Carp" : "0",
             "Config" : "0",
-            "Cwd" : "0",
             "Encode" : "0",
             "Exporter" : "0",
-            "File::Find" : "0",
             "File::Spec" : "0.82",
             "File::Temp" : "0.17",
             "HTML::Entities" : "3.69",
-            "IO::File" : "0",
-            "IO::Handle" : "0",
-            "POSIX" : "0",
-            "Test::Deep" : "0.11",
-            "Test::More" : "0.98",
-            "Test::Warn" : "0.3",
             "base" : "0",
             "if" : "0",
             "overload" : "0",
@@ -52,6 +48,18 @@
             "strict" : "0",
             "utf8" : "0",
             "warnings" : "0"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Cwd" : "0",
+            "File::Find" : "0",
+            "IO::File" : "0",
+            "IO::Handle" : "0",
+            "POSIX" : "0",
+            "Test::Deep" : "0.11",
+            "Test::More" : "0.98",
+            "Test::Warn" : "0.3"
          }
       }
    },
@@ -65,9 +73,11 @@
          "http://dev.perl.org/licenses/"
       ],
       "repository" : {
-         "url" : "https://github.com/leejo/CGI.pm"
+         "type" : "git",
+         "url" : "https://github.com/leejo/CGI.pm",
+         "web" : "https://github.com/leejo/CGI.pm"
       }
    },
-   "version" : "4.31",
+   "version" : "4.32",
    "x_serialization_backend" : "JSON::PP version 2.27300"
 }

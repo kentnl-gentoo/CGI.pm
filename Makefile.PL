@@ -27,14 +27,16 @@ WriteMakefile(
         'HTML::Entities' => 3.69,
         'Encode'         => 0,    # Encode was first released with perl v5.7.3
         'Config'         => 0,    # Config was first released with perl 5.00307
-        'Test::Deep'     => 0.11,
-        'Cwd'            => 0,     # Cwd was first released with perl 5
-        'POSIX'          => 0,    # POSIX was first released with perl 5
-        'IO::File'       => 0,    # IO::File was first released with perl 5.00307
-        'IO::Handle'     => 0,    # IO::Handle was first released with perl 5.00307
-        'File::Find'     => 0,    # File::Find was first released with perl 5
-        'Test::More'     => 0.98,
-        'Test::Warn'     => 0.30,
+    },
+    TEST_REQUIRES   => {
+        'Cwd'              => 0,     # Cwd was first released with perl 5
+        'POSIX'            => 0,    # POSIX was first released with perl 5
+        'IO::File'         => 0,    # IO::File was first released with perl 5.00307
+        'IO::Handle'       => 0,    # IO::Handle was first released with perl 5.00307
+        'File::Find'       => 0,    # File::Find was first released with perl 5
+        'Test::Deep'       => 0.11,
+        'Test::More'       => 0.98,
+        'Test::Warn'       => 0.30,
     },
     test    => { TESTS    => 't/*.t t/headers/*.t' },
     linkext => { LINKTYPE => '' }, # no link needed
@@ -49,18 +51,21 @@ WriteMakefile(
         ? ()
         : (
             META_MERGE => {
-                requires  => { perl => '5.008001' },
-                resources => {
+                'meta-spec' => { version => 2 },
+                requires    => { perl    => '5.008001' },
+                resources   => {
                     license    => 'http://dev.perl.org/licenses/',
                     homepage   => 'https://metacpan.org/module/CGI',
-                    repository => 'https://github.com/leejo/CGI.pm',
-                    bugtracker => 'https://github.com/leejo/CGI.pm/issues',
+                    repository => {
+                        url  => 'https://github.com/leejo/CGI.pm',
+                        web  => 'https://github.com/leejo/CGI.pm',
+                        type => 'git',
+                    },
+                    bugtracker => {
+                        web => 'https://github.com/leejo/CGI.pm/issues',
+                    }
                 },
                 no_index => { directory => [qw/t/] },
-            },
-            META_ADD => {
-                build_requires     => {},
-                configure_requires => {}
             },
         )
     ),
