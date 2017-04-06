@@ -64,7 +64,7 @@
          }
       }
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/leejo/CGI.pm/issues"
@@ -79,6 +79,6 @@
          "web" : "https://github.com/leejo/CGI.pm"
       }
    },
-   "version" : "4.35_01",
+   "version" : "4.36",
    "x_serialization_backend" : "JSON::PP version 2.27300"
 }
