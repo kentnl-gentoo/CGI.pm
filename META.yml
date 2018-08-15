@@ -14,8 +14,7 @@ build_requires:
   Test::NoWarnings: '0'
   Test::Warn: '0.3'
 configure_requires:
-  ExtUtils::MakeMaker: '6.64'
-  File::Spec::Functions: '0'
+  ExtUtils::MakeMaker: '0'
 dynamic_config: 1
 generated_by: 'ExtUtils::MakeMaker version 7.24, CPAN::Meta::Converter version 2.150010'
 license: perl
@@ -49,5 +48,5 @@ resources:
   homepage: https://metacpan.org/module/CGI
   license: http://dev.perl.org/licenses/
   repository: https://github.com/leejo/CGI.pm
-version: '4.39'
+version: '4.40'
 x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

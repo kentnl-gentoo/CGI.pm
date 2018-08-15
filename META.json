@@ -28,8 +28,7 @@
       },
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "6.64",
-            "File::Spec::Functions" : "0"
+            "ExtUtils::MakeMaker" : "0"
          }
       },
       "runtime" : {
@@ -80,6 +79,6 @@
          "web" : "https://github.com/leejo/CGI.pm"
       }
    },
-   "version" : "4.39",
+   "version" : "4.40",
    "x_serialization_backend" : "JSON::PP version 2.27400_02"
 }
